@@ -7,16 +7,37 @@ jobs:
   build:
     runs-on: [self-hosted, public, linux, x64]
     steps:
+      - name: Make .terraformrc
+        shell: bash
+        run: |
+          cat <<EOS >> $HOME/.terraformrc
+          credentials "${{ secrets.JF_HOSTNAME }}" {
+            token = "${{ secrets.SuperSecret }}"
+          }
+          provider_installation {
+            direct {
+              exclude = ["registry.terraform.io/*/*"]
+            }
+            network_mirror {
+              url = "https://${{ secrets.JF_HOSTNAME }}/artifactory/api/terraform/poc-terraform-regirstry-remote/providers/"
+            }
+          }
+          EOS
+          cat $HOME/.terraformrc
+
       - uses: actions/checkout@v2
         name: Checkout repo
         with:
           fetch-depth: 0
+
       - name: Run yor action
         uses: bridgecrewio/yor-action@main
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
+
       - name: Update documentation
         run: |
           git config --local user.email "action@github.com"
@@ -35,3 +56,9 @@ jobs:
           git push origin
           git tag $new_tag
           git push origin $new_tag
+
+      - name: Remove .terraformrc
+        if: always()
+        shell: bash
+        run: |
+          rm -f $HOME/.terraformrc

@@ -6,6 +6,24 @@ jobs:
     runs-on: ubuntu-latest
     name: checkov-action
     steps:
+      - name: Make .terraformrc
+        shell: bash
+        run: |
+          cat <<EOS >> $HOME/.terraformrc
+          credentials "${{ secrets.JF_HOSTNAME }}" {
+            token = "${{ secrets.SuperSecret }}"
+          }
+          provider_installation {
+            direct {
+              exclude = ["registry.terraform.io/*/*"]
+            }
+            network_mirror {
+              url = "https://${{ secrets.JF_HOSTNAME }}/artifactory/api/terraform/poc-terraform-regirstry-remote/providers/"
+            }
+          }
+          EOS
+          cat $HOME/.terraformrc
+
       - name: Checkout repo
         uses: actions/checkout@v2
 
@@ -14,3 +32,9 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           directory: terraform/
+
+      - name: Remove .terraformrc
+        if: always()
+        shell: bash
+        run: |
+          rm -f $HOME/.terraformrc
