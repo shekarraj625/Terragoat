@@ -94,6 +94,24 @@ resource "azurerm_storage_account" "example" {
   }
 }
 
+resource "azurerm_storage_account" "example2" {
+  name                     = "examplestoracc"
+  resource_group_name      = azurerm_resource_group.example.name
+  location                 = azurerm_resource_group.example.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags = {
+    git_commit           = "5c6b5d60a8aa63a5d37e60f15185d13a967f0542"
+    git_file             = "terraform/azure/storage.tf"
+    git_last_modified_at = "2021-05-02 10:06:10"
+    git_last_modified_by = "nimrodkor@users.noreply.github.com"
+    git_modifiers        = "Adin.Ermie/nimrodkor"
+    git_org              = "bridgecrewio"
+    git_repo             = "terragoat"
+    yor_trace            = "a0ac11af-a429-4d9f-b706-cfcc13d082a9"
+  }
+}
+
 resource "azurerm_storage_container" "example" {
   # this blob container is public
   name                  = "content"
