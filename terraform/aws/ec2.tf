@@ -1,6 +1,6 @@
 resource "aws_instance" "web_host" {
   # ec2 have plain text secrets in user data
-  # test change2
+  # test change
   ami           = var.ami
   instance_type = "t2.nano"
 
@@ -17,6 +17,7 @@ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMAAA
 export AWS_SECRET_ACCESS_KEY=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
 export AWS_DEFAULT_REGION=us-west-2
 echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+d
 EOF
   tags = merge({
     Name = "${local.resource_prefix.value}-ec2"
@@ -35,7 +36,7 @@ EOF
 
 resource "aws_ebs_volume" "web_host_storage" {
   # unencrypted volume
-  #checkov:skip=CKV_AWS_3:The volume needs to be unencrypted
+  # delete this
   availability_zone = "${var.region}a"
   #encrypted         = false  # Setting this causes the volume to be recreated on apply 
   size = 1
