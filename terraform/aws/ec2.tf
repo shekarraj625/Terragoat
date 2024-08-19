@@ -1,3 +1,4 @@
+# this comment means nothing
 resource "aws_instance" "web_host" {
   # ec2 have plain text secrets in user data
   # test change
