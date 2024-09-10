@@ -1,8 +1,8 @@
 name: Prisma Cloud IaC Scan
 on:
       pull_request:
-            types:
-                  - closed
+            # types:
+            #       - closed
             branches: [ "main", "master" ]
       push:
             branches: [ "main", "master" ]
