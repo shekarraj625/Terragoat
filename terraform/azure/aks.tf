@@ -1,4 +1,5 @@
 resource "azurerm_kubernetes_cluster" "k8s_cluster" {
+  # new comment
   dns_prefix          = "terragoat-${var.environment}"
   location            = var.location
   name                = "terragoat-aks-${var.environment}"
