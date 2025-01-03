@@ -1,37 +1,27 @@
-name: build
+name: Build
+
 on:
   push:
     branches:
       - master
+
+
 jobs:
   build:
-    runs-on: [self-hosted, public, linux, x64]
+    name: Build and analyze
+    runs-on: windows-latest
+    
     steps:
-      - uses: actions/checkout@v2
-        name: Checkout repo
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Run yor action
-        uses: bridgecrewio/yor-action@main
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
-      - name: Update documentation
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git fetch --tags
-          git pull
-          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          echo "latest tag: $latest_tag"
-          new_tag=$(echo $latest_tag | awk -F. -v a="$1" -v b="$2" -v c="$3" '{printf("%d.%d.%d", $1+a, $2+b , $3+1)}')
-          echo "new tag: $new_tag"
-
-          pip install -U checkov
-          cat .github/template.md > README.md && checkov -d terraform -o github_failed_only -s >> README.md
-          git add README.md  || echo "No changes to commit"
-          git commit -m "update resource scan result doc" README.md || echo "No changes to commit"
-          git push origin
-          git tag $new_tag
-          git push origin $new_tag
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
